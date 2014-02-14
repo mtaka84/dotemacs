@@ -1,7 +1,7 @@
 (require 'package)
 (add-to-list 'package-archives
   '("melpa" . "http://melpa.milkbox.net/packages/") t)
-
+(package-initialize)
 
 ;; yes/no のかわりに y/n
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -53,10 +53,10 @@
 ;; Mac用フォント設定
 ;; http://tcnksm.sakura.ne.jp/blog/2012/04/02/emacs/
 
- ;; 英語
- (set-face-attribute 'default nil
-             :family "Menlo" ;; font
-             :height 120)    ;; font size
+;; 英語
+(set-face-attribute 'default nil
+            :family "Menlo" ;; font
+            :height 120)    ;; font size
 
 ;; 日本語
 (set-fontset-font
@@ -98,8 +98,80 @@
 
 ;;; P90 タイトルバーにファイルのフルパスを表示
 (setq frame-title-format "%f")
+
+;; 対応するカッコを目立たせる
+(show-paren-mode t)
+
 ;; 行番号を常に表示する
+(require 'linum)
 (global-linum-mode t)
+(setq linum-format "%5d ")
+
+;; 全角スペース タブ trailing-spacesを目立たせる
+(require 'whitespace)
+;; space-markとtab-mark、それからspacesとtrailingを対象とする
+(setq whitespace-style '(space-mark tab-mark face spaces trailing))
+(setq whitespace-display-mappings
+      '(
+        ;; (space-mark   ?\     [?\u00B7]     [?.]) ; space - centered dot
+        (space-mark   ?\xA0  [?\u00A4]     [?_]) ; hard space - currency
+        (space-mark   ?\x8A0 [?\x8A4]      [?_]) ; hard space - currency
+        (space-mark   ?\x920 [?\x924]      [?_]) ; hard space - currency
+        (space-mark   ?\xE20 [?\xE24]      [?_]) ; hard space - currency
+        (space-mark   ?\xF20 [?\xF24]      [?_]) ; hard space - currency
+        (space-mark ?\u3000 [?\u25a1] [?_ ?_]) ; full-width-space - square
+        ;; NEWLINE is displayed using the face `whitespace-newline'
+        ;; (newline-mark ?\n    [?$ ?\n])  ; eol - dollar sign
+        ;; (newline-mark ?\n    [?\u21B5 ?\n] [?$ ?\n]); eol - downwards arrow
+        ;; (newline-mark ?\n    [?\u00B6 ?\n] [?$ ?\n]); eol - pilcrow
+        ;; (newline-mark ?\n    [?\x8AF ?\n]  [?$ ?\n]); eol - overscore
+        ;; (newline-mark ?\n    [?\x8AC ?\n]  [?$ ?\n]); eol - negation
+        ;; (newline-mark ?\n    [?\x8B0 ?\n]  [?$ ?\n]); eol - grade
+        ;;
+        ;; WARNING: the mapping below has a problem.
+        ;; When a TAB occupies exactly one column, it will display the
+        ;; character ?\xBB at that column followed by a TAB which goes to
+        ;; the next TAB column.
+        ;; If this is a problem for you, please, comment the line below.
+        (tab-mark     ?\t    [?\u00BB ?\t] [?\\ ?\t]) ; tab - left quote mark
+        ))
+;; whitespace-spaceの定義を全角スペースにし、色をつけて目立たせる
+(setq whitespace-space-regexp "\\(\u3000+\\)")
+(set-face-foreground 'whitespace-space "cyan")
+(set-face-background 'whitespace-space 'nil)
+;; whitespace-trailingを色つきアンダーラインで目立たせる
+(set-face-underline  'whitespace-trailing t)
+(set-face-foreground 'whitespace-trailing "cyan")
+(set-face-background 'whitespace-trailing 'nil)
+(global-whitespace-mode 1)
+
+;; PageUpキーでPageup
+(global-set-key [pageup] 'pager-page-up)
+;; PageDownキーPageDown
+(global-set-key [pagedown] 'pager-page-down)
+
+;; system-type predicates
+;; from http://d.hatena.ne.jp/tomoya/20090807/1249601308
+(setq darwin-p   (eq system-type 'darwin)
+      linux-p    (eq system-type 'gnu/linux)
+      carbon-p   (eq system-type 'mac)
+      meadow-p   (featurep 'meadow))
+
+; Emacs と Mac のクリップボード共有
+; from http://hakurei-shain.blogspot.com/2010/05/mac.html
+(defun copy-from-osx ()
+  (shell-command-to-string "pbpaste"))
+
+(defun paste-to-osx (text &optional push)
+  (let ((process-connection-type nil))
+    (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+      (process-send-string proc text)
+      (process-send-eof proc))))
+
+(if (or darwin-p carbon-p)
+  (setq interprogram-cut-function 'paste-to-osx)
+  (setq interprogram-paste-function 'copy-from-osx))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -119,4 +191,28 @@
 (setq twittering-icon-mode t)                ; Show icons
 (setq twittering-use-icon-storage t)
 (setq twittering-timer-interval 300)         ; Update your timeline each 300 seconds (5 minutes)
+
+
+;;
+;; Erlang
+;;
+
+;; erlang-mode
+(setq load-path (cons  "/usr/local/Cellar/erlang/R16B03/lib/erlang/lib/tools-2.6.13/emacs"
+      load-path))
+      (setq erlang-root-dir "/usr/local/Cellar/erlang/R16B03")
+      (setq exec-path (cons "/usr/local/Cellar/erlang/R16B03/bin" exec-path))
+      (require 'erlang-start)
+;;      (require 'erlang-flymake)
+
+;; distel
+(add-to-list 'load-path "/usr/local/share/distel/elisp")
+(require 'distel)
+(distel-setup)
+
+;; Some Erlang customazations
+(add-hook 'erlang-mode-hook
+  (lambda ()
+    (setq inferior-erlang-machine-options `("-sname" "masanori"))
+    (imenu-add-to-menubar "imenu")))
 
