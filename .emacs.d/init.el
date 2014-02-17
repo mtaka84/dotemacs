@@ -56,7 +56,7 @@
 ;; 英語
 (set-face-attribute 'default nil
             :family "Menlo" ;; font
-            :height 120)    ;; font size
+            :height 110)    ;; font size
 
 ;; 日本語
 (set-fontset-font
@@ -105,7 +105,7 @@
 ;; 行番号を常に表示する
 (require 'linum)
 (global-linum-mode t)
-(setq linum-format "%5d ")
+;;(setq linum-format "%5d")
 
 ;; 全角スペース タブ trailing-spacesを目立たせる
 (require 'whitespace)
@@ -215,4 +215,15 @@
   (lambda ()
     (setq inferior-erlang-machine-options `("-sname" "masanori"))
     (imenu-add-to-menubar "imenu")))
+
+
+;;
+;; Auto Complete
+;;
+
+;; http://dev.ariel-networks.com/Members/matsuyama/auto-complete
+(require 'auto-complete-config)
+(ac-config-default)
+(add-to-list 'ac-dictionary-directories "~/.emacs.d/etc/ac-dict")
+(global-auto-complete-mode t)
 
