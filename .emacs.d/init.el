@@ -249,8 +249,13 @@
 (when (require 'auto-complete-config nil t)
   (add-to-list 'ac-dictionary-directories 
     "~/.emacs.d/elisp/ac-dict")
-  (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
-  (ac-config-default))
+  (setq ac-comphist-file "~/.emacs.d/elisp/auto-complete/ac-comphist.dat") ;; 補完履歴のキャッシュ先
+  (ac-config-default)
+  (setq ac-auto-start 1)
+  (setq ac-dwim t)
+  (setq ac-use-menu-map t) ;; C-n/C-pで候補選択可能
+  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 6.5 さまざまな履歴管理                                 ;;
@@ -295,9 +300,16 @@
 ;; ag.elとwgrep-ag.elをlist-packageでMelpaなどからインストールしておく
 (require 'ag)
 (custom-set-variables
- '(ag-highlight-search t)  ; 検索結果の中の検索語をハイライトする
- '(ag-reuse-window 'nil)   ; 現在のウィンドウを検索結果表示に使う
- '(ag-reuse-buffers 'nil)) ; 現在のバッファを検索結果表示に使う
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ag-highlight-search t)
+ '(ag-reuse-buffers (quote nil))
+ '(ag-reuse-window (quote nil))
+ '(ansi-color-names-vector ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
+ '(custom-enabled-themes (quote (deeper-blue))))
+ ; 現在のバッファを検索結果表示に使う
 (require 'wgrep-ag)
 (autoload 'wgrep-ag-setup "wgrep-ag")
 (add-hook 'ag-mode-hook 'wgrep-ag-setup)
@@ -431,3 +443,10 @@
    anything-c-moccur-enable-initial-pattern t)
   ;; C-M-oにanything-c-moccur-occur-by-moccurを割り当てる
   (global-set-key (kbd "C-M-o") 'anything-c-moccur-occur-by-moccur))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :stipple nil :background "#181a26" :foreground "White" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 110 :width normal :foundry "apple" :family "Menlo")))))
